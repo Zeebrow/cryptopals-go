@@ -6,6 +6,11 @@ import (
 	"log"
 )
 
+/*
+TL:DR;
+^
+*/
+
 func xorByteArrays(bytes1 []byte, bytes2 []byte) (rtn []byte) {
 	/*
 		This function sort-of XORs a pair of byte-arrays
@@ -33,6 +38,8 @@ func Exercise_1_2() {
 				100010010010111110100101110010101100
 				11010001111
 			hope this helps!
+
+		- you also learned that a 'byte' is the same thing as a uint8,
 	*/
 	const str = string("1c0111001f010100061a024b53535009181c")
 	const xor_against = string("686974207468652062756c6c277320657965")
