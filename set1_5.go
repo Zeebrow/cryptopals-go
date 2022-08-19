@@ -30,17 +30,17 @@ func set15Main() {
 	fmt.Println(hex.EncodeToString(outputLinesb))
 	fmt.Println(ansLines)
 	fmt.Println(string(RepeatingKeyXOR(outputLinesb, keyb)))
-	encryptLetter()
-	readEncryptedFile()
+	//encryptLetter()
+	//readEncryptedFile()
 }
 
 func encryptLetter() { //not really encrypted
 	filename := "my-letter.txt"
 	outfile := filename + ".enc"
-	pw := "password" // not really a password
+	key := "password"
 	f, err := os.Open(filename)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	defer f.Close()
 
@@ -59,7 +59,7 @@ func encryptLetter() { //not really encrypted
 	if err != nil && err != io.EOF {
 		fmt.Printf("error reading file: %v\n", err)
 	}
-	encContent := RepeatingKeyXOR(readBuffer, []byte(pw))
+	encContent := RepeatingKeyXOR(readBuffer, []byte(key))
 	encByteCount, err := encf.Write(encContent)
 	if err != nil {
 		fmt.Printf("error writing file: %v\n", err)
@@ -71,11 +71,11 @@ func encryptLetter() { //not really encrypted
 
 func readEncryptedFile() { //see above
 	filename := "my-letter.txt.enc"
-	pw := "password"
-	// pw := "password!!1" // a broken clock is right twice a day... password needs to be handled better
+	key := "password"
+	// key := "password!!1" // a broken clock is right twice a day... is this really a "password"?
 	encf, err := os.OpenFile(filename, os.O_RDONLY, 0600)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
 	defer encf.Close()
 	st, _ := os.Stat(filename)
@@ -85,7 +85,7 @@ func readEncryptedFile() { //see above
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println(string(RepeatingKeyXOR(buffer, []byte(pw))))
+		fmt.Println(string(RepeatingKeyXOR(buffer, []byte(key))))
 		fmt.Printf("read %d bytes\n", n)
 	}
 }

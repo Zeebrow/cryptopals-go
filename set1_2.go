@@ -27,7 +27,7 @@ func XorBytesBuffers(buf1 []byte, buf2 []byte) (rtn []byte) {
 	return
 }
 
-func Exercise_1_2() {
+func set12Main() {
 	/*
 		- do i need to convert the string to hex, ever?
 			- i hope you can laugh at yourself lol
