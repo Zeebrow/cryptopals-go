@@ -3,26 +3,26 @@ package main
 import (
 	"encoding/hex"
 	"fmt"
-	"log"
 )
 
 /*
 TL:DR;
 ^
 */
-
-func xorByteArrays(bytes1 []byte, bytes2 []byte) (rtn []byte) {
+func XorBytesBuffers(buf1 []byte, buf2 []byte) (rtn []byte) {
 	/*
 		This function sort-of XORs a pair of byte-arrays
 		it might should XOR a set of byte-arrays
 		It will not pad the shorter of the two, and will instead exit the main program if the length of both are not equal.
 	*/
-	if len(bytes1) != len(bytes2) {
-		log.Fatalf("You're trying to xor two byte arrays of different length (length %d and length %d)!\n", len(bytes1), len(bytes2))
+	if len(buf1) != len(buf2) {
+		return nil
+		// should this return an error?
+		// log.Fatalf("You're trying to xor two byte arrays of different length (length %d and length %d)!\n", len(buf1), len(buf2))
 	}
-	rtn = make([]byte, len(bytes1))
-	for i := 0; i < len(bytes1); i++ {
-		rtn[i] = bytes1[i] ^ bytes2[i]
+	rtn = make([]byte, len(buf1))
+	for i := 0; i < len(buf1); i++ {
+		rtn[i] = buf1[i] ^ buf2[i]
 	}
 	return
 }
@@ -47,12 +47,10 @@ func Exercise_1_2() {
 
 	hexDecoded_str, _ := hex.DecodeString(str)
 	hexDecoded_xor, _ := hex.DecodeString(xor_against)
-	xord := xorByteArrays(hexDecoded_str, hexDecoded_xor)
-	fmt.Println(hex.EncodeToString(xord))
+	xord := XorBytesBuffers(hexDecoded_str, hexDecoded_xor)
 
 	fmt.Printf("The string : %s\n", str)
 	fmt.Printf("XOR'd with : %s\n", xor_against)
 	fmt.Printf("Equals     : %s\n", hex.EncodeToString(xord))
 	fmt.Printf("Exercise answer: %s\n", resultForAsciiSpeakers)
-
 }
