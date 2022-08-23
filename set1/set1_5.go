@@ -1,21 +1,15 @@
-package main
+package set1
 
 import (
 	"encoding/hex"
 	"fmt"
 	"io"
 	"os"
+
+	"github.com/Zeebrow/cryptopals-go/shared"
 )
 
-func RepeatingKeyXOR(buff1 []byte, key []byte) []byte {
-	output := make([]byte, len(buff1))
-	for n, i := range buff1 {
-		output[n] = i ^ key[n%len(key)]
-	}
-	return output
-}
-
-func set15Main() {
+func Set15Main() {
 	// How to handle newlines?
 	openingStanza := "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"
 	ansLine1 := "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272"
@@ -25,11 +19,11 @@ func set15Main() {
 	key := "ICE"
 	keyb := []byte(key)
 
-	outputLinesb := RepeatingKeyXOR([]byte(openingStanza), keyb)
+	outputLinesb := shared.RepeatingKeyXOR([]byte(openingStanza), keyb)
 
 	fmt.Println(hex.EncodeToString(outputLinesb))
 	fmt.Println(ansLines)
-	fmt.Println(string(RepeatingKeyXOR(outputLinesb, keyb)))
+	fmt.Println(string(shared.RepeatingKeyXOR(outputLinesb, keyb)))
 	//encryptLetter()
 	//readEncryptedFile()
 }
@@ -59,7 +53,7 @@ func encryptLetter() { //not really encrypted
 	if err != nil && err != io.EOF {
 		fmt.Printf("error reading file: %v\n", err)
 	}
-	encContent := RepeatingKeyXOR(readBuffer, []byte(key))
+	encContent := shared.RepeatingKeyXOR(readBuffer, []byte(key))
 	encByteCount, err := encf.Write(encContent)
 	if err != nil {
 		fmt.Printf("error writing file: %v\n", err)
@@ -85,7 +79,7 @@ func readEncryptedFile() { //see above
 	if err != nil {
 		fmt.Println(err)
 	} else {
-		fmt.Println(string(RepeatingKeyXOR(buffer, []byte(key))))
+		fmt.Println(string(shared.RepeatingKeyXOR(buffer, []byte(key))))
 		fmt.Printf("read %d bytes\n", n)
 	}
 }

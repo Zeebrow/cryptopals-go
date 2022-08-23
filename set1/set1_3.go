@@ -1,4 +1,4 @@
-package main
+package set1
 
 import (
 	"encoding/hex"
@@ -89,7 +89,7 @@ func XorSingleCharacter(buff []byte, charAsByte byte) []byte {
 	return rtn
 }
 
-func set13Main() {
+func Set13Main() {
 	str := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 	bstr, err := hex.DecodeString(str)
 	if err != nil {

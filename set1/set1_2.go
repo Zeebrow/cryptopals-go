@@ -1,33 +1,13 @@
-package main
+package set1
 
 import (
 	"encoding/hex"
 	"fmt"
+
+	"github.com/Zeebrow/cryptopals-go/shared"
 )
 
-/*
-TL:DR;
-^
-*/
-func XorBytesBuffers(buf1 []byte, buf2 []byte) (rtn []byte) {
-	/*
-		This function sort-of XORs a pair of byte-arrays
-		it might should XOR a set of byte-arrays
-		It will not pad the shorter of the two, and will instead exit the main program if the length of both are not equal.
-	*/
-	if len(buf1) != len(buf2) {
-		return nil
-		// should this return an error?
-		// log.Fatalf("You're trying to xor two byte arrays of different length (length %d and length %d)!\n", len(buf1), len(buf2))
-	}
-	rtn = make([]byte, len(buf1))
-	for i := 0; i < len(buf1); i++ {
-		rtn[i] = buf1[i] ^ buf2[i]
-	}
-	return
-}
-
-func set12Main() {
+func Set12Main() {
 	/*
 		- do i need to convert the string to hex, ever?
 			- i hope you can laugh at yourself lol
@@ -47,7 +27,7 @@ func set12Main() {
 
 	hexDecoded_str, _ := hex.DecodeString(str)
 	hexDecoded_xor, _ := hex.DecodeString(xor_against)
-	xord := XorBytesBuffers(hexDecoded_str, hexDecoded_xor)
+	xord := shared.XorBytesBuffers(hexDecoded_str, hexDecoded_xor)
 
 	fmt.Printf("The string : %s\n", str)
 	fmt.Printf("XOR'd with : %s\n", xor_against)

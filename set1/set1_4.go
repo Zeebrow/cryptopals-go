@@ -1,4 +1,4 @@
-package main
+package set1
 
 import (
 	"bufio"
@@ -14,7 +14,7 @@ type rankedOutputWithId struct {
 	xordRo        rankedOutput
 }
 
-func set14Main() {
+func Set14Main() {
 	textFile := "set1_4_textfile.txt"
 	file, err := os.Open(textFile)
 	if err != nil {

@@ -1,11 +1,11 @@
-package main
+package set1
 
 import (
 	"encoding/hex"
 	"fmt"
 )
 
-func set11Main() {
+func Set11Main() {
 	/*
 		how to cacilate.
 		b64 = 64 values per digit, [a-zA-Z0-9+/]
