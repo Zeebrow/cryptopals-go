@@ -1,52 +1,23 @@
-package main
+package set1
 
 import (
+	"github.com/Zeebrow/cryptopals-go/shared"
+
 	"encoding/base64"
-	"errors"
 	"fmt"
 	"os"
 )
 
-func HammingDistance(buff1 []byte, buff2 []byte) (int, error) {
-	// the Hamming distance is the number of differing bits
-	// bits differ if bit ^ bit = 0
-	if len(buff1) != len(buff2) {
-		return -1, errors.New("buffers differ in length")
-	}
-	counter := 0
-	for n, _ := range buff1 {
-		xord := buff1[n] ^ buff2[n]
-		for j := 0; j <= 7; j++ {
-			if (xord & (1 << j)) > 0 {
-				counter++
-			}
-		}
-	}
-	return counter, nil
-}
-
-func testHamming() {
-	str1 := "this is a test"
-	str2 := "wokka wokka!!!"
-	dist, _ := HammingDistance([]byte(str1), []byte(str2))
-	fmt.Printf("%08b\n", []byte(str1))
-	fmt.Printf("%08b\n", []byte(str2))
-	xord, _ := XorBuffers([]byte(str1), []byte(str2))
-	fmt.Printf("%08b\n", xord)
-	fmt.Println(dist)
-}
-
-func set16Main() {
+func Set16Main(textFile string) {
 	// base64 encoded after encrypted with repeating-key xor
 	// newline fuckery
-	filename := "set1_6_file.txt"
-	f, err := os.OpenFile(filename, os.O_RDONLY, 0600)
+	f, err := os.OpenFile(textFile, os.O_RDONLY, 0600)
 	if err != nil {
 		fmt.Println(err)
 		return
 	}
 	defer f.Close()
-	st, _ := os.Stat(filename)
+	st, _ := os.Stat(textFile)
 	size := st.Size()
 	buffer := make([]byte, size)
 	f.Read(buffer)
@@ -67,7 +38,7 @@ func set16Main() {
 		var key Key
 		chunk1 := b64Buffer[0:ks]
 		chunk2 := b64Buffer[ks : 2*ks]
-		d, err := HammingDistance(chunk1, chunk2)
+		d, err := shared.HammingDistance(chunk1, chunk2)
 		if err != nil {
 			fmt.Printf("error getting Hamming distance: %v\n", err)
 		}

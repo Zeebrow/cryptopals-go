@@ -14,8 +14,7 @@ type rankedOutputWithId struct {
 	xordRo        rankedOutput
 }
 
-func Set14Main() {
-	textFile := "set1_4_textfile.txt"
+func Set14Main(textFile string) {
 	file, err := os.Open(textFile)
 	if err != nil {
 		fmt.Println(err)

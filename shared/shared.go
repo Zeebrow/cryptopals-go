@@ -1,5 +1,7 @@
 package shared
 
+import "errors"
+
 /*
 	This function XORs a pair of byte-arrays by XORing the first byte of the
 	first buffer with the first byte of the second buffer, and so on.
@@ -28,4 +30,22 @@ func RepeatingKeyXOR(buff1 []byte, key []byte) []byte {
 		output[n] = i ^ key[n%len(key)]
 	}
 	return output
+}
+
+func HammingDistance(buff1 []byte, buff2 []byte) (int, error) {
+	// the Hamming distance is the number of differing bits
+	// bits differ if bit ^ bit = 0
+	if len(buff1) != len(buff2) {
+		return -1, errors.New("buffers differ in length")
+	}
+	counter := 0
+	for n, _ := range buff1 {
+		xord := buff1[n] ^ buff2[n]
+		for j := 0; j <= 7; j++ {
+			if (xord & (1 << j)) > 0 {
+				counter++
+			}
+		}
+	}
+	return counter, nil
 }
