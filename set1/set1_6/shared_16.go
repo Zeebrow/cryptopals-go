@@ -2,6 +2,7 @@ package set1_6
 
 import (
 	"fmt"
+	"log"
 	"sort"
 
 	"github.com/Zeebrow/cryptopals-go/shared"
@@ -16,7 +17,7 @@ type Key struct {
 
 type keySorter struct {
 	rankedKeys []Key
-	by         func(k1, k2 *Key) bool
+	// by         func(k1, k2 *Key) bool
 }
 
 type By func(k1, k2 *Key) bool
@@ -29,16 +30,18 @@ func (ks *keySorter) Swap(i, j int) {
 	ks.rankedKeys[i], ks.rankedKeys[j] = ks.rankedKeys[j], ks.rankedKeys[i]
 }
 
-func (ks *keySorter) Less() bool {
-	return true
+func (ks *keySorter) Less(i, j int) bool {
+	// return ks.by(&ks.rankedKeys[i], &ks.rankedKeys[j])
+	return ks.rankedKeys[i].normalizedDistance < ks.rankedKeys[j].normalizedDistance
 }
 
-func (by By) Sort(keys []Key) {
+func Sort(keys []Key) {
 	sorter := &keySorter{
 		rankedKeys: keys,
-		by:         by,
+		// by:         by,
 	}
 	sort.Sort(sorter)
+
 }
 
 func (k EncryptedKey) getNormalizedDistance(ks int) int {
@@ -53,20 +56,43 @@ func (k EncryptedKey) getNormalizedDistance(ks int) int {
 }
 
 func (k EncryptedKey) rankedKeySizes(start, end int) []Key {
-	var unsortedKeys, sortedKeys []Key
-	for ks := start; ks <= end; ks++ {
-		var key Key
-		key.size = ks
-		key.normalizedDistance = k.getNormalizedDistance(ks)
-		unsortedKeys = append(unsortedKeys, key)
+	if end < start {
+		log.Fatal("invalid start and end range for ranked key sizes")
 	}
+	fmt.Println(end - start)
+	/*
+		the var keyword allocates memory at runtime
+		make() allocates stack memory.
+		This function guarantees to return a slice, so make() should be used
+		https://stackoverflow.com/questions/25543520/declare-slice-or-make-slice
+	*/
+	// var unsortedKeys, sortedKeys []Key
+	unsortedKeys := make([]Key, (end - start + 1)) // +1 to include start and end
+	sortedKeys := make([]Key, (end - start + 1))
 
-	var likelyKey = Key{size: 0, normalizedDistance: 999}
-	for _, k := range keys {
-		if k.normalizedDistance < likelyKey.normalizedDistance {
-			likelyKey = k
+	i := start
+	for ks := start; ks <= end; ks++ {
+		unsortedKeys[ks-i] = Key{
+			size:               ks,
+			normalizedDistance: k.getNormalizedDistance(ks),
 		}
 	}
+
+	fmt.Printf("unsorted:\n")
+	for i, _ := range unsortedKeys {
+		fmt.Printf("%d: %v\n", i, unsortedKeys[i])
+	}
+	copy(sortedKeys, unsortedKeys)
+	fmt.Printf("\nbefore sort:\n")
+	for i := range sortedKeys {
+		fmt.Println(sortedKeys[i])
+	}
+	Sort(sortedKeys)
+	fmt.Printf("\nsorted:\n")
+	for i := range sortedKeys {
+		fmt.Println(sortedKeys[i])
+	}
+	return sortedKeys
 
 }
 

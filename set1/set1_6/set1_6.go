@@ -28,5 +28,6 @@ func Set16Main(textFile string) {
 	/*********************Get likely keysize*******************/
 	likeyKeySize := ec.getLikelyKeySize(2, 40)
 	fmt.Printf("likely key size: %d\n", likeyKeySize)
+	ec.rankedKeySizes(2, 20)
 
 }
