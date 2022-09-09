@@ -17,10 +17,7 @@ type Key struct {
 
 type keySorter struct {
 	rankedKeys []Key
-	// by         func(k1, k2 *Key) bool
 }
-
-type By func(k1, k2 *Key) bool
 
 func (ks *keySorter) Len() int {
 	return len(ks.rankedKeys)
@@ -31,21 +28,18 @@ func (ks *keySorter) Swap(i, j int) {
 }
 
 func (ks *keySorter) Less(i, j int) bool {
-	// return ks.by(&ks.rankedKeys[i], &ks.rankedKeys[j])
 	return ks.rankedKeys[i].normalizedDistance < ks.rankedKeys[j].normalizedDistance
 }
 
 func Sort(keys []Key) {
 	sorter := &keySorter{
 		rankedKeys: keys,
-		// by:         by,
 	}
 	sort.Sort(sorter)
-
 }
 
+/* The normalized Hamming Distance is the Hamming Distance d divided by the keysize ks.  */
 func (k EncryptedKey) getNormalizedDistance(ks int) int {
-
 	chunk1 := k[0:ks]
 	chunk2 := k[ks : 2*ks]
 	d, err := shared.HammingDistance(chunk1, chunk2)
@@ -55,11 +49,14 @@ func (k EncryptedKey) getNormalizedDistance(ks int) int {
 	return d / ks
 }
 
+/*
+Creates a new array of Kys from an existing unsorted array.
+Keys with a smaller normalized Hamming Distance are placed first.
+*/
 func (k EncryptedKey) rankedKeySizes(start, end int) []Key {
 	if end < start {
 		log.Fatal("invalid start and end range for ranked key sizes")
 	}
-	fmt.Println(end - start)
 	/*
 		the var keyword allocates memory at runtime
 		make() allocates stack memory.
@@ -77,23 +74,9 @@ func (k EncryptedKey) rankedKeySizes(start, end int) []Key {
 			normalizedDistance: k.getNormalizedDistance(ks),
 		}
 	}
-
-	fmt.Printf("unsorted:\n")
-	for i, _ := range unsortedKeys {
-		fmt.Printf("%d: %v\n", i, unsortedKeys[i])
-	}
 	copy(sortedKeys, unsortedKeys)
-	fmt.Printf("\nbefore sort:\n")
-	for i := range sortedKeys {
-		fmt.Println(sortedKeys[i])
-	}
 	Sort(sortedKeys)
-	fmt.Printf("\nsorted:\n")
-	for i := range sortedKeys {
-		fmt.Println(sortedKeys[i])
-	}
 	return sortedKeys
-
 }
 
 func (k EncryptedKey) getLikelyKeySize(start, end int) int {
@@ -112,5 +95,4 @@ func (k EncryptedKey) getLikelyKeySize(start, end int) int {
 		}
 	}
 	return likelyKey.size
-
 }

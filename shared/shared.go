@@ -32,9 +32,12 @@ func RepeatingKeyXOR(buff1 []byte, key []byte) []byte {
 	return output
 }
 
+/*
+the Hamming distance is the number of differing bits
+between two equal-length arrays (or thingies) of bytes
+bits differ if the XOR of the two bits, bit ^ bit, is 0.
+*/
 func HammingDistance(buff1 []byte, buff2 []byte) (int, error) {
-	// the Hamming distance is the number of differing bits
-	// bits differ if bit ^ bit = 0
 	if len(buff1) != len(buff2) {
 		return -1, errors.New("buffers differ in length")
 	}

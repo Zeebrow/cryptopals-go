@@ -28,7 +28,13 @@ type roSorter struct {
 	by            func(ro1, ro2 *rankedOutput) bool
 }
 
-// this is a closure function for some reason
+/*
+don't use this as an example of how you *have* to do Sort()
+to implement the sort interface, all you need is Len() Swap() and Less()
+this is a closure function because of the example I used,
+which could be nice if you want to sort a struct based on different fields ...
+see set1_6 for a bare-bones example
+*/
 type By func(ro1, ro2 *rankedOutput) bool
 
 func (by By) Sort(ros []rankedOutput) {
