@@ -6,7 +6,14 @@ import (
 	"log"
 	"regexp"
 	"sort"
+
+	"github.com/Zeebrow/cryptopals-go/shared"
 )
+
+/*
+Set 1 Challenge 3
+Single-byte XOR cipher
+*/
 
 type rankedOutput struct {
 	rank         int
@@ -85,16 +92,6 @@ func scoreAsciiString(s string) (score int) {
 	return score
 }
 
-func XorSingleCharacter(buff []byte, charAsByte byte) []byte {
-	// XOR's each byte in a bytes buffer with a single byte
-	// returns the XOR'd byte array
-	var rtn []byte
-	for n := range buff {
-		rtn = append(rtn, buff[n]^charAsByte)
-	}
-	return rtn
-}
-
 func Set13Main() {
 	str := "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 	bstr, err := hex.DecodeString(str)
@@ -108,7 +105,7 @@ func Set13Main() {
 	fmt.Println(bstr)
 	for _, m := range table {
 		var outp rankedOutput
-		outp.outputBytes = XorSingleCharacter(bstr, m)
+		outp.outputBytes = shared.XorSingleCharacter(bstr, m)
 		outp.outputString = hex.EncodeToString(outp.outputBytes)
 		outp.rank = scoreAsciiString(string(outp.outputBytes))
 		// see 88 (58) and 120 (78)

@@ -1,6 +1,10 @@
 package shared
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"regexp"
+)
 
 /*
 	This function XORs a pair of byte-arrays by XORing the first byte of the
@@ -32,6 +36,22 @@ func RepeatingKeyXOR(buff1 []byte, key []byte) []byte {
 	return output
 }
 
+func ScoreAsciiString(s string) (score int) {
+	// returns the number of printable ascii characters in a string
+	// printable ascii characters are any that are base64 encodable
+	r, err := regexp.Compile("[A-Za-z0-9+/= ]")
+	if err != nil {
+		fmt.Println(err)
+	}
+	score = 0
+	for _, char := range s {
+		if r.MatchString(string(char)) {
+			score++
+		}
+	}
+	return score
+}
+
 /*
 the Hamming distance is the number of differing bits
 between two equal-length arrays (or thingies) of bytes
@@ -51,4 +71,16 @@ func HammingDistance(buff1 []byte, buff2 []byte) (int, error) {
 		}
 	}
 	return counter, nil
+}
+
+/*
+XOR's each byte in a bytes buffer with a single byte
+returns the XOR'd byte array
+*/
+func XorSingleCharacter(buff []byte, charAsByte byte) []byte {
+	var rtn []byte
+	for n := range buff {
+		rtn = append(rtn, buff[n]^charAsByte)
+	}
+	return rtn
 }

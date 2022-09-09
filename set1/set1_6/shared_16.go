@@ -15,22 +15,17 @@ type Key struct {
 	normalizedDistance int
 }
 
-type keySorter struct {
-	rankedKeys []Key
-}
+type keySorter struct{ rankedKeys []Key }
 
-func (ks *keySorter) Len() int {
-	return len(ks.rankedKeys)
-}
-
+func (ks *keySorter) Len() int { return len(ks.rankedKeys) }
 func (ks *keySorter) Swap(i, j int) {
 	ks.rankedKeys[i], ks.rankedKeys[j] = ks.rankedKeys[j], ks.rankedKeys[i]
 }
-
 func (ks *keySorter) Less(i, j int) bool {
 	return ks.rankedKeys[i].normalizedDistance < ks.rankedKeys[j].normalizedDistance
 }
 
+/* Sort an array of keys by normalized Hamming distance*/
 func Sort(keys []Key) {
 	sorter := &keySorter{
 		rankedKeys: keys,
@@ -50,7 +45,7 @@ func (k EncryptedKey) getNormalizedDistance(ks int) int {
 }
 
 /*
-Creates a new array of Kys from an existing unsorted array.
+Creates a new array of keys from an existing unsorted array.
 Keys with a smaller normalized Hamming Distance are placed first.
 */
 func (k EncryptedKey) rankedKeySizes(start, end int) []Key {
@@ -95,4 +90,24 @@ func (k EncryptedKey) getLikelyKeySize(start, end int) int {
 		}
 	}
 	return likelyKey.size
+}
+
+func NewTransposedArray(inArr [][]byte) [][]byte {
+	numRows := len(inArr)
+	numCols := len(inArr[0])
+	for _, r := range inArr {
+		if len(r) != numCols {
+			log.Fatalf("Cannot transpose an array with inconsistent row lengths")
+		}
+	}
+
+	outArr := make([][]byte, numCols) //f'sho. implies inArr was made with make([][]byte, numRows), which is an array of rows.
+	for i := 0; i < numCols; i++ {    // numCols of inArr is the numRows of the transposed array
+		newColBuff := make([]byte, numRows) // do I need a buffer to fill up...?
+		for j := 0; j < numRows; j++ {
+			newColBuff[j] = inArr[j][i]
+		}
+		outArr[i] = newColBuff
+	}
+	return outArr
 }

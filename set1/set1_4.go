@@ -5,7 +5,14 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+
+	"github.com/Zeebrow/cryptopals-go/shared"
 )
+
+/*
+Set 1 Challenge 4
+Detect single-character XOR
+*/
 
 type rankedOutputWithId struct {
 	lineNumInFile int
@@ -53,7 +60,7 @@ func Set14Main(textFile string) {
 		for _, b := range table {
 			var _ro rankedOutput
 			rowid.xorByte = b
-			candidateBytes := XorSingleCharacter(rowid.oldRo.outputBytes, b)
+			candidateBytes := shared.XorSingleCharacter(rowid.oldRo.outputBytes, b)
 			_ro.NewRankedOutput(candidateBytes)
 			if _ro.rank > highestRankedXorOutput.rank {
 				highestRankedXorOutput = _ro

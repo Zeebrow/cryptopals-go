@@ -5,6 +5,11 @@ import (
 	"fmt"
 )
 
+/*
+Set 1 Challenge 1
+Convert hex to base64
+*/
+
 func Set11Main() {
 	/*
 		how to cacilate.

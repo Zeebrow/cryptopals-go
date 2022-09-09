@@ -9,6 +9,11 @@ import (
 	"github.com/Zeebrow/cryptopals-go/shared"
 )
 
+/*
+Set 1 Challenge 5
+Implement repeating-key XOR
+*/
+
 func Set15Main() {
 	// How to handle newlines?
 	openingStanza := "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"

@@ -7,6 +7,11 @@ import (
 	"github.com/Zeebrow/cryptopals-go/shared"
 )
 
+/*
+Set 1 Challenge 2
+Fixed XOR
+*/
+
 func Set12Main() {
 	/*
 		- do i need to convert the string to hex, ever?
