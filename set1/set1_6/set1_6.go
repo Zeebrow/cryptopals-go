@@ -4,22 +4,10 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
-
-	"github.com/Zeebrow/cryptopals-go/shared"
 )
 
-/*
-returns an array of all byte values from byte(0) to byte(255)
-*/
-func lookupTableBytes() []byte {
-	var b []byte
-	for i := 0; i <= 255; i++ {
-		b = append(b, byte(i))
-	}
-	return b
-}
-
 func Set16Main(textFile string) {
+	largestKeySize := 40
 	/*********************Get bytes from file******************/
 	// base64 encoded after encrypted with repeating-key xor
 	f, err := os.OpenFile(textFile, os.O_RDONLY, 0600)
@@ -32,8 +20,8 @@ func Set16Main(textFile string) {
 	size := st.Size() //size of ASCII file
 	buffer := make([]byte, size)
 	f.Read(buffer)
-	var ec EncryptedKey
-	ec, err = base64.StdEncoding.DecodeString(string(buffer))
+	var ct Ciphertext
+	ct, err = base64.StdEncoding.DecodeString(string(buffer))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -41,64 +29,31 @@ func Set16Main(textFile string) {
 
 	/**********************************************************
 		Key sizes to try
-	***********************************************************/
-	rankedKeys := ec.rankedKeySizes(2, 20)
 
-	/*************************FYI******************************/
-	fmt.Println("Keys ranked by normalized Hamming Distance:")
-	for _, i := range rankedKeys {
-		fmt.Printf("keysize: %d\tHamming distance: %d\n", i.size, i.normalizedDistance)
+		Given a range of key sizes, rank the keys according to
+		their edit distance
+	***********************************************************/
+	rankedKeys := ct.GetEditDistanceKeysRange(2, largestKeySize)
+	Sort(rankedKeys)
+
+	for _, rk := range rankedKeys {
+		rk.Material = ct.GetKeyWithSize(rk.Size)
 	}
 
-	func() {
-		/**********************************************************
-			Get likely keysize
-		***********************************************************/
-		likeyKeySize := ec.getLikelyKeySize(2, 40)
-		fmt.Printf("likely key size: %d\n", likeyKeySize)
+	var rankedDecryptedContent []DecrpytedContent
+	for _, rk := range rankedKeys {
+		fmt.Printf("start for key with size %d (edit distance %d)\n", rk.Size, rk.NormalizedDistance)
+		rankedDecryptedContent = append(rankedDecryptedContent, ct.DecryptRepeatingKeyXorForKeySize(rk.Size))
+	}
 
-		/**********************************************************
-			Break ciphertext into keysized-blocks
-		***********************************************************/
-		numBlocks := len(ec) / likeyKeySize // 2876/5
-		if len(ec)%likeyKeySize > 0 {
-			numBlocks++
-		}
-		ciphertextBlocks := make([][]byte, numBlocks) // 2876/5 x 5
-		for i := 0; i < int(numBlocks); i++ {
-			// need from beginning of ith block to end of ith block
-			ciphertextBlocks[i] = ec[(i * likeyKeySize):((i + 1) * likeyKeySize)]
-		}
+	SortRDC(rankedDecryptedContent)
+	for i, r := range rankedDecryptedContent {
+		fmt.Printf("index: %d\t\trank: %d\tkey: %s\n", i, r.Rank, string(r.DecryptionKey.Material))
 
-		/**********************************************************
-			Transpose and solve with single-character XOR
-
-			Each row of the transposed ciphertext is XOR'd against
-			a single character (a-zA-Z0-9+=) and ranked according to how many
-			printable ascii characters are present after encoding
-		***********************************************************/
-		transposedCiphertext := NewTransposedArray(ciphertextBlocks)
-
-		fmt.Println("begin solving")
-		var score int
-		var key []byte
-		for i, _ := range transposedCiphertext {
-			var resultBuffer []byte
-			highScore := -1
-			var highScoreKeyByte byte
-			for _, k := range lookupTableBytes() {
-				resultBuffer = shared.RepeatingKeyXOR(transposedCiphertext[i], []byte{k})
-				score = shared.ScoreAsciiString(string(resultBuffer))
-				if score > highScore {
-					highScore = score
-					highScoreKeyByte = byte(k)
-				}
-			}
-			key = append(key, highScoreKeyByte)
-			// fmt.Printf("%d: (rank %d) %s\n", i, score, string(highScoringBuffer))
-		}
-		fmt.Println(string(key))
-		fmt.Println(string(shared.RepeatingKeyXOR(ec, key)))
-	}()
+	}
+	fmt.Println(string(rankedDecryptedContent[38].DecrpytedContent))
+	fmt.Println(rankedDecryptedContent[38].Rank)
+	fmt.Println(rankedDecryptedContent[38].Size)
+	fmt.Println(rankedDecryptedContent[38].DecryptionKey)
 
 }

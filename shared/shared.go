@@ -36,9 +36,12 @@ func RepeatingKeyXOR(buff1 []byte, key []byte) []byte {
 	return output
 }
 
+/*
+returns the number of printable ascii characters in a string
+printable ascii characters are any that are base64 encodable
+Higher number means more readable ascii in the given string
+*/
 func ScoreAsciiString(s string) (score int) {
-	// returns the number of printable ascii characters in a string
-	// printable ascii characters are any that are base64 encodable
 	r, err := regexp.Compile("[A-Za-z0-9+/= ]")
 	if err != nil {
 		fmt.Println(err)
