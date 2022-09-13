@@ -36,24 +36,34 @@ func Set16Main(textFile string) {
 	rankedKeys := ct.GetEditDistanceKeysRange(2, largestKeySize)
 	Sort(rankedKeys)
 
-	for _, rk := range rankedKeys {
-		rk.Material = ct.GetKeyWithSize(rk.Size)
-	}
+	func() {
+		fmt.Println("start")
+		outKey := make(chan Key)
+		for _, rk := range rankedKeys {
+			go ct.AsyncGetKey(rk, outKey)
+		}
+		var asdf []Key
+		for range rankedKeys {
+			asdf = append(asdf, <-outKey)
+		}
+		close(outKey)
+		// go ct.AsyncDecrypt(k, dcChan)
+		// dc := <-dcChan
+		dcChan := make(chan DecrpytedContent)
+		for i := range rankedKeys {
+			go ct.AsyncDecrypt(asdf[i], dcChan)
+		}
+		var qwer []DecrpytedContent
+		for range rankedKeys {
+			qwer = append(qwer, <-dcChan)
+		}
+		close(dcChan)
 
-	var rankedDecryptedContent []DecrpytedContent
-	for _, rk := range rankedKeys {
-		fmt.Printf("start for key with size %d (edit distance %d)\n", rk.Size, rk.NormalizedDistance)
-		rankedDecryptedContent = append(rankedDecryptedContent, ct.DecryptRepeatingKeyXorForKeySize(rk.Size))
-	}
+		SortRDC(qwer)
+		fmt.Printf(string(qwer[0].DecrpytedContent))
+		fmt.Println()
+		fmt.Printf("Key of highest scoring content: '%s' (rank %d)\n", string(qwer[0].DecryptionKey.Material), qwer[0].Rank)
 
-	SortRDC(rankedDecryptedContent)
-	for i, r := range rankedDecryptedContent {
-		fmt.Printf("index: %d\t\trank: %d\tkey: %s\n", i, r.Rank, string(r.DecryptionKey.Material))
-
-	}
-	fmt.Println(string(rankedDecryptedContent[38].DecrpytedContent))
-	fmt.Println(rankedDecryptedContent[38].Rank)
-	fmt.Println(rankedDecryptedContent[38].Size)
-	fmt.Println(rankedDecryptedContent[38].DecryptionKey)
-
+	}()
+	return
 }

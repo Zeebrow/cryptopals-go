@@ -22,6 +22,68 @@ func lookupTableBytes() []byte {
 /* Represents decoded text to be analyzed */
 type Ciphertext []byte
 
+func (ct Ciphertext) AsyncGetKey(inKey Key, outKey chan Key) {
+	/**********************************************************
+		Break ciphertext into keysized-blocks
+	***********************************************************/
+	ks := inKey.Size
+	numRows := len(ct) / ks
+	if len(ct)%ks > 0 {
+		numRows++
+	}
+	ciphertextRows := make([][]byte, numRows)
+	for i := 0; i < int(numRows); i++ {
+		// need from beginning of ith block to end of ith block
+		ciphertextRows[i] = ct[(i * ks):((i + 1) * ks)]
+	}
+
+	/**********************************************************
+		Transpose and solve with single-character XOR
+
+		Each row of the transposed ciphertext is XOR'd against
+		a single character (a-zA-Z0-9+/= ) and ranked according to how many
+		printable ascii characters are present after encoding
+	***********************************************************/
+	transposedCiphertext := NewTransposedArray(ciphertextRows)
+
+	var score int
+	var key []byte
+	for _, tct := range transposedCiphertext {
+		var resultBuffer []byte
+		highScore := -1
+		var highScoreKeyByte byte
+		for _, k := range lookupTableBytes() {
+			resultBuffer = shared.RepeatingKeyXOR(tct, []byte{k})
+			score = shared.ScoreAsciiString(string(resultBuffer))
+			if score > highScore {
+				highScore = score
+				highScoreKeyByte = byte(k)
+			}
+		}
+		key = append(key, highScoreKeyByte)
+	}
+	outKey <- Key{
+		Size:     ks,
+		Material: key,
+	}
+}
+
+func (ct Ciphertext) AsyncDecrypt(key Key, outDC chan DecrpytedContent) {
+	theDecryptedContent := shared.RepeatingKeyXOR(ct, key.Material)
+	runeBuffer := make([]rune, len(theDecryptedContent))
+	for i, b := range theDecryptedContent {
+		runeBuffer[i] = rune(b)
+	}
+	decryptedContentRank := shared.ScoreAsciiString(string(runeBuffer))
+	// fmt.Printf("Keysize %d produces decrypted content w/ rank %d\n", key.Size, decryptedContentRank)
+	outDC <- DecrpytedContent{
+		Size:             len(theDecryptedContent),
+		Rank:             decryptedContentRank,
+		DecrpytedContent: theDecryptedContent,
+		DecryptionKey:    key,
+	}
+}
+
 /*
 Attempt to recreate the key used to encrypt a chunk of ciphertext with the repeating-key XOR method.
 
@@ -217,7 +279,8 @@ func (rdcSorter *rankedDCSorter) Swap(i, j int) {
 	rdcSorter.rdc[i], rdcSorter.rdc[j] = rdcSorter.rdc[j], rdcSorter.rdc[i]
 }
 func (rdcSorter *rankedDCSorter) Less(i, j int) bool {
-	return rdcSorter.rdc[i].Rank < rdcSorter.rdc[j].Rank
+	// >
+	return rdcSorter.rdc[i].Rank > rdcSorter.rdc[j].Rank
 }
 
 func SortRDC(rdcs []DecrpytedContent) {
